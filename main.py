@@ -11,6 +11,8 @@ window = js.window
 
 
 def main():
+    # Tell the stylesheet that Python is running (turns off the no-Python fallback).
+    document.documentElement.classList.add("py-ready")
     init_mobile_nav()
     init_header_scroll_state()
     init_scroll_reveal()

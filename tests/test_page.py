@@ -84,6 +84,16 @@ def test_css_defines_the_states_main_py_toggles():
         assert selector in css, selector
 
 
+def test_page_explains_how_to_serve_it_if_python_cannot_start():
+    doc = parse_html(read("index.html"))
+    notice = doc.querySelector(".py-notice")
+    assert notice is not None and notice.getAttribute("role") == "status"
+    assert "python3 serve.py" in notice.textContent
+    css = read("styles.css")
+    assert "html:not(.py-ready) .py-notice" in css
+    assert "html:not(.py-ready) .reveal" in css
+
+
 def test_intentional_dark_mode_marker_is_kept():
     first_lines = read("styles.css").splitlines()[:4]
     assert "Light theme only (dark mode intentionally not implemented yet)." in first_lines[2], (

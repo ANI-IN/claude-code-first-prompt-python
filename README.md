@@ -42,7 +42,7 @@ FlowState has three layers, each in its own file.
 * `init_billing_toggle` switches the pricing between monthly and annual, by mouse or keyboard.
 * `init_footer_year` keeps the copyright year current.
 
-`serve.py` is a small local web server built on the Python standard library. The page must be served over HTTP so the browser can fetch `main.py`.
+`serve.py` is a small local web server built on the Python standard library. The page must be served over HTTP so the browser can fetch `main.py`. Browsers do not allow a page opened straight from disk to load another file, so if you double-click `index.html` the content still appears, but the interactive features stay off and a notice at the bottom of the page explains how to start the server. When `main.py` starts, it adds a `py-ready` class to the page, which switches that fallback off.
 
 ## Prerequisites
 
@@ -116,7 +116,7 @@ python3 serve.py
 # then visit http://localhost:8000
 ```
 
-Add `--open` to open the page in your default browser automatically, or `--port 9000` to use another port. The server disables caching, so a plain reload always shows your latest edits. Press `Ctrl + C` to stop it.
+Always open the page through this address rather than by double-clicking `index.html`, otherwise the interactive features stay off. Add `--open` to open the page in your default browser automatically, or `--port 9000` to use another port. The server disables caching, so a plain reload always shows your latest edits. Press `Ctrl + C` to stop it.
 
 Python's built-in static server works too, though your browser may cache older copies of `main.py` while you edit.
 
