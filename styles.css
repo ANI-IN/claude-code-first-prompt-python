@@ -51,6 +51,38 @@
   --transition: 200ms ease;
 }
 
+/* ---------- Dark theme ----------
+   Token-only overrides: redefining these variables re-themes the entire page
+   without duplicating a single component rule. Values chosen for WCAG-AA
+   contrast against the dark surfaces. */
+[data-theme="dark"] {
+  /* Text */
+  --color-heading: #f1f5f9;        /* slate-100 */
+  --color-text: #cbd5e1;           /* slate-300 */
+  --color-text-muted: #94a3b8;     /* slate-400 */
+
+  /* Surfaces */
+  --color-bg: #0b1220;             /* page background */
+  --color-bg-alt: #111a2e;         /* alternate sections / footer */
+  --color-border: #25324b;         /* borders & dividers */
+  --color-white: #16203a;
+  --color-surface: #16203a;        /* cards, header, mockups */
+  --color-header-bg: rgba(11, 18, 32, 0.85);
+
+  /* Brand / accent */
+  --color-primary: #6366f1;        /* keep indigo so white button text stays legible */
+  --color-primary-dark: #4f46e5;   /* primary-button hover */
+  --color-primary-light: #818cf8;
+  --color-primary-soft: rgba(129, 140, 248, 0.16);
+  --color-accent: #a78bfa;
+  --color-accent-text: #a5b4fc;    /* indigo-300 — accent text/icons readable on dark */
+
+  /* Deeper shadows read better on dark backgrounds */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.65);
+}
+
 /* ---------- Reset / base ---------- */
 *,
 *::before,
@@ -94,6 +126,16 @@ svg {
 
 ul {
   list-style: none;
+}
+
+/* ---------- Smooth theme transition ----------
+   Animates color tokens when switching themes. Components that define their
+   own `transition` (buttons, header, cards) extend this where needed. */
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease,
+    color 0.3s ease, fill 0.3s ease;
 }
 
 /* ---------- Layout helpers ---------- */
@@ -326,6 +368,45 @@ ul {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* ---------- Theme toggle ---------- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: transparent;
+  color: var(--color-heading);
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition),
+    color var(--transition);
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-accent-text);
+}
+
+/* Show the moon in light mode (click to go dark) and the sun in dark mode. */
+.theme-toggle__icon--sun {
+  display: none;
+}
+
+.theme-toggle__icon--moon {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle__icon--sun {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle__icon--moon {
+  display: none;
 }
 
 /* ---------- Hero ---------- */
@@ -742,6 +823,11 @@ ul {
   background-position: center;
 }
 
+/* Lighter check stroke so it stays visible on the dark soft background */
+[data-theme="dark"] .price__features li::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5b4fc' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+}
+
 .price--featured {
   border-color: var(--color-primary);
   box-shadow: var(--shadow-lg);
@@ -986,5 +1072,13 @@ ul {
   .btn:hover,
   .feature:hover {
     transform: none;
+  }
+
+  /* Theme switch (and all other) color transitions become instant */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.001ms !important;
+    transition-delay: 0ms !important;
   }
 }

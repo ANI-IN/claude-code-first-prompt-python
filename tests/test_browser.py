@@ -151,3 +151,50 @@ def test_header_shadow_and_scroll_reveal(open_page):
     page.keyboard.press("Home")
     page.mouse.wheel(0, -100_000)
     expect(header).not_to_have_class(re.compile(r"\bis-scrolled\b"))
+
+
+# ---------- Dark mode ----------
+def test_theme_toggle_switches_saves_and_restores(open_page):
+    page = open_page(color_scheme="light")
+    html, toggle = page.locator("html"), page.locator("#theme-toggle")
+    expect(html).to_have_attribute("data-theme", "light")
+    expect(page.locator(".theme-toggle__icon--moon")).to_be_visible()
+
+    toggle.click()
+    expect(html).to_have_attribute("data-theme", "dark")
+    expect(toggle).to_have_attribute("aria-pressed", "true")
+    expect(toggle).to_have_attribute("aria-label", "Switch to light theme")
+    expect(page.locator(".theme-toggle__icon--sun")).to_be_visible()
+    expect(page.locator("body")).to_have_css("background-color", "rgb(11, 18, 32)")
+
+    page.reload()
+    wait_for_python(page)
+    expect(html).to_have_attribute("data-theme", "dark")
+
+    toggle.click()
+    expect(html).to_have_attribute("data-theme", "light")
+    expect(page.locator("body")).to_have_css("background-color", "rgb(255, 255, 255)")
+    assert page.errors == []
+
+
+SYSTEM_CHANGE_SETTLE_MS = 500
+
+
+def test_theme_follows_system_until_user_chooses(open_page):
+    page = open_page(color_scheme="dark")
+    html = page.locator("html")
+    expect(html).to_have_attribute("data-theme", "dark")
+
+    # No saved choice yet: the page tracks the operating system live.
+    page.emulate_media(color_scheme="light")
+    expect(html).to_have_attribute("data-theme", "light")
+    page.emulate_media(color_scheme="dark")
+    expect(html).to_have_attribute("data-theme", "dark")
+
+    # Once the visitor picks a theme, system changes no longer override it.
+    page.locator("#theme-toggle").click()
+    expect(html).to_have_attribute("data-theme", "light")
+    for scheme in ("light", "dark"):
+        page.emulate_media(color_scheme=scheme)
+        page.wait_for_timeout(SYSTEM_CHANGE_SETTLE_MS)  # give the change event time to arrive
+        expect(html).to_have_attribute("data-theme", "light")

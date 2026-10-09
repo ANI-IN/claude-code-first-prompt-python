@@ -11,6 +11,7 @@ window = js.window
 
 
 def main():
+    init_theme_toggle()
     init_mobile_nav()
     init_header_scroll_state()
     init_scroll_reveal()
@@ -29,6 +30,72 @@ def on(target, event_name, handler, options=None):
         target.addEventListener(event_name, create_proxy(handler))
     else:
         target.addEventListener(event_name, create_proxy(handler), to_js(options))
+
+
+# ---------- Dark mode toggle ----------
+# The saved (or system) theme is applied first, before anything else is wired
+# up, so the page settles on the right theme as early as possible.
+THEME_STORAGE_KEY = "flowstate-theme"
+THEMES = ("light", "dark")
+
+
+def init_theme_toggle():
+    root = document.documentElement
+    toggle = document.getElementById("theme-toggle")
+
+    def stored_theme():
+        try:
+            theme = window.localStorage.getItem(THEME_STORAGE_KEY)
+        except Exception:
+            return None  # storage unavailable: fall back to the system theme
+        return theme if theme in THEMES else None
+
+    def system_theme():
+        if hasattr(window, "matchMedia") and window.matchMedia("(prefers-color-scheme: dark)").matches:
+            return "dark"
+        return "light"
+
+    def current_theme():
+        return "dark" if root.getAttribute("data-theme") == "dark" else "light"
+
+    def reflect_button():
+        if toggle is None:
+            return
+        is_dark = current_theme() == "dark"
+        toggle.setAttribute("aria-pressed", js_bool(is_dark))
+        toggle.setAttribute("aria-label", "Switch to light theme" if is_dark else "Switch to dark theme")
+
+    def apply_theme(theme, persist=False):
+        root.setAttribute("data-theme", theme)
+        if persist:
+            try:
+                window.localStorage.setItem(THEME_STORAGE_KEY, theme)
+            except Exception:
+                pass  # storage unavailable: the theme still applies for this visit
+        reflect_button()
+
+    apply_theme(stored_theme() or system_theme())
+
+    if toggle is None:
+        return
+
+    def on_toggle_click(event):
+        apply_theme("light" if current_theme() == "dark" else "dark", persist=True)
+
+    on(toggle, "click", on_toggle_click)
+
+    # Follow the OS preference live, but only while the user hasn't chosen.
+    if hasattr(window, "matchMedia"):
+        media_query = window.matchMedia("(prefers-color-scheme: dark)")
+
+        def on_system_change(event):
+            if stored_theme() is None:
+                apply_theme("dark" if event.matches else "light")
+
+        if hasattr(media_query, "addEventListener"):
+            on(media_query, "change", on_system_change)
+        else:
+            media_query.addListener(create_proxy(on_system_change))
 
 
 # ---------- Mobile navigation ----------
