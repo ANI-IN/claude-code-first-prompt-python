@@ -1,0 +1,6 @@
+# Viewing the page needs only Python itself: main.py runs in the browser via PyScript,
+# and serve.py uses the standard library. These packages are for the test suite.
+pytest>=8.0
+
+# End-to-end browser tests (after installing, run: python -m playwright install chromium)
+playwright>=1.50
