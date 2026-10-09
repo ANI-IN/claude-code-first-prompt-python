@@ -77,7 +77,7 @@ When you accept the plan, let Claude ask for your approval at each step. This is
 
 ### 6. Test the result in the browser
 
-Start the local server from the root folder of this repository, then open `http://localhost:8000` in your browser.
+Start the local server from the root folder of this repository, then open `http://localhost:8000` in your browser. Do not open `index.html` by double-clicking it: the page's Python cannot start from a file on disk, so the toggle would do nothing.
 
 ```bash
 python3 serve.py

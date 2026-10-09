@@ -17,6 +17,7 @@ import urllib.request
 import pytest
 
 from serve import make_server
+from tests.fake_browser import ROOT
 from tests.test_page import PYSCRIPT_VERSION
 
 sync_api = pytest.importorskip("playwright.sync_api", reason="Playwright is not installed")
@@ -91,6 +92,25 @@ def test_page_runs_python_without_errors(open_page):
     assert page.title() == "FlowState — Project management that flows"
     assert page.text_content("#year") == str(datetime.date.today().year)
     assert page.errors == []
+
+
+def test_served_page_hides_the_no_python_notice(open_page):
+    page = open_page()
+    expect(page.locator("html")).to_have_class(re.compile(r"\bpy-ready\b"))
+    page.wait_for_timeout(4_500)  # past the moment the notice would appear
+    expect(page.locator(".py-notice")).to_be_hidden()
+
+
+def test_page_opened_as_a_file_still_shows_content_and_explains_why(browser, base_url):
+    # Browsers do not let a page opened from disk fetch main.py, so Python cannot start.
+    page = browser.new_page()
+    page.goto((ROOT / "index.html").as_uri())
+    notice = page.locator(".py-notice")
+    expect(notice).to_be_visible(timeout=10_000)
+    expect(notice).to_contain_text("python3 serve.py")
+    expect(page.locator(".hero__copy")).to_have_css("opacity", "1")
+    expect(page.locator("html")).not_to_have_class(re.compile(r"\bpy-ready\b"))
+    page.close()
 
 
 def test_billing_toggle_by_mouse_and_keyboard(open_page):

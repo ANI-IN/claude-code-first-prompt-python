@@ -30,7 +30,7 @@ python3 serve.py
 python3 serve.py --open
 ```
 
-The page loads `main.py` over HTTP, so serve it rather than opening `index.html` as a file. The first visit needs an internet connection to download the PyScript runtime; your browser caches it afterwards.
+The page loads `main.py` over HTTP, so serve it rather than opening `index.html` as a file. Browsers do not let a page opened from disk load `main.py`, so a double-clicked `index.html` shows its content but the theme toggle and other controls stay off, and a notice at the bottom explains how to start the server. The first visit needs an internet connection to download the PyScript runtime; your browser caches it afterwards.
 
 ## Project structure
 

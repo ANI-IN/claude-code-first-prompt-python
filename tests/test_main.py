@@ -171,6 +171,11 @@ def test_footer_shows_current_year():
     assert page.by_id("year").textContent == str(datetime.date.today().year)
 
 
+# ---------- Python-running marker ----------
+def test_marks_page_as_python_ready(page):
+    assert page.document.documentElement.classList.contains("py-ready")
+
+
 # ---------- Robustness ----------
 def test_script_runs_on_a_page_without_any_widgets():
     page = load_page(html="<main><p>Nothing interactive here.</p></main>")
